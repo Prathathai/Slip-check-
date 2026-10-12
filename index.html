@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>SlipCheck TH | Auto Scan</title>
+
+<style>
+*{box-sizing:border-box}
+:root{
+ --bg:#0b1220;--panel:#142138;--line:#30425b;
+ --text:#edf4ff;--muted:#9dafc8;--green:#45e0ac;
+ --yellow:#ffd078;--red:#ff7b85
+}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+ line-height:1.6
+}
+.wrap{width:min(950px,calc(100% - 24px));margin:auto;padding:22px 0 40px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.logo{
+ width:48px;height:48px;display:grid;place-items:center;
+ background:var(--green);color:#06251c;border-radius:15px;
+ font-size:25px;font-weight:900
+}
+h1{font-size:21px;margin:0}
+header p{font-size:12px;color:var(--muted);margin:0}
+.hero{margin-bottom:22px}
+.hero small{color:var(--green);letter-spacing:2px;font-weight:bold}
+.hero h2{font-size:clamp(28px,5vw,42px);line-height:1.2;margin:8px 0}
+.hero h2 span{color:var(--green)}
+.hero p{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{
+ min-width:0;padding:18px;border-radius:18px;
+ border:1px solid var(--line);background:var(--panel)
+}
+.card h3{margin:0 0 4px;font-size:17px}
+.muted{color:var(--muted);font-size:12px}
+.drop{
+ min-height:175px;border:2px dashed #49617f;border-radius:14px;
+ display:flex;flex-direction:column;align-items:center;
+ justify-content:center;text-align:center;gap:6px;
+ background:#0b1525;cursor:pointer;padding:18px
+}
+.drop:hover{border-color:var(--green)}
+.drop .up{font-size:34px}
+.drop small{color:var(--muted);font-size:12px}
+input[type=file]{display:none}
+#preview{display:none;margin-top:12px;text-align:center}
+#preview img{max-width:100%;max-height:300px;border-radius:12px}
+button{
+ border:1px solid var(--line);border-radius:10px;padding:10px 14px;
+ background:#1b2b42;color:white;font-weight:bold;cursor:pointer
+}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;color:#cbd7e7;margin-bottom:5px}
+input[type=text],input[type=number],textarea{
+ width:100%;min-width:0;background:#091423;color:white;
+ border:1px solid #354963;border-radius:10px;
+ padding:11px;font:inherit;font-size:14px
+}
+input:focus,textarea:focus{outline:1px solid var(--green)}
+.status{
+ background:#0b1525;border:1px solid var(--line);
+ padding:14px;border-radius:12px;margin:14px 0
+}
+.status h4{margin:0;font-size:16px}
+.status p{color:var(--muted);font-size:12px;margin:4px 0}
+.bar{height:6px;background:#28364a;border-radius:10px;overflow:hidden;margin-top:12px}
+#progress{height:100%;width:0;background:var(--green);transition:width .2s}
+.result{
+ padding:12px;background:#0b1525;border:1px solid #283a51;
+ border-radius:12px;margin-bottom:10px
+}
+.result label{color:var(--muted)}
+.value{font-size:17px;font-weight:750;overflow-wrap:anywhere}
+.amount{font-size:30px;color:var(--green);font-weight:850}
+.tag{font-size:11px;color:var(--yellow)}
+textarea{resize:vertical;min-height:150px;font-size:12px}
+.note{
+ margin-top:14px;padding:12px;border-radius:12px;
+ border:1px solid #68552f;background:#252015;
+ color:#ead7a8;font-size:12px
+}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions button{flex:1}
+footer{text-align:center;color:#71839e;font-size:11px;margin-top:24px}
+@media(max-width:700px){
+ .grid{grid-template-columns:1fr}
+ .card{padding:15px}
+ .wrap{padding-top:14px}
+}
+@media(max-width:360px){
+ .fields{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+ <div class="logo">✓</div>
+ <div>
+  <h1>SlipCheck <span style="color:#45e0ac">TH</span></h1>
+  <p>Automatic Slip Scanner</p>
+ </div>
+</header>
+
+<section class="hero">
+ <small>AUTO SCAN · OCR</small>
+ <h2>อัปโหลดสลิป<br><span>แล้วให้ระบบอ่านข้อมูล</span></h2>
+ <p>เลือกรูปแล้วระบบจะเริ่มสแกนโดยอัตโนมัติ พร้อมแสดงยอดเงินและชื่อที่อ่านข้อความได้จากภาพ</p>
+</section>
+
+<div class="grid">
+
+<section class="card">
+ <h3>01 / อัปโหลดสลิป</h3>
+ <p class="muted">รองรับ PNG, JPG, WEBP ขนาดไม่เกิน 10 MB</p>
+
+ <label class="drop" id="dropzone" for="file">
+  <span class="up">📄</span>
+  <strong>แตะเพื่อเลือกรูปสลิป</strong>
+  <small>เมื่อเลือกรูป ระบบจะเริ่มสแกนทันที</small>
+  <input type="file" id="file" accept="image/png,image/jpeg,image/webp">
+ </label>
+
+ <div id="preview">
+  <img id="image" alt="ภาพสลิปที่อัปโหลด">
+  <br><br>
+  <button id="remove" type="button">เลือกรูปใหม่</button>
+ </div>
+
+ <div class="status" aria-live="polite">
+  <h4 id="statusTitle">⌕ รอภาพสลิป</h4>
+  <p id="statusText">เลือกรูปเพื่อเริ่มต้น</p>
+  <div class="bar"><div id="progress"></div></div>
+ </div>
+
+ <div class="note">
+  การสแกนต้องโหลด OCR ผ่านอินเทอร์เน็ต หากเปิดครั้งแรกอาจใช้เวลาสักครู่
+ </div>
+</section>
+
+<section class="card">
+ <h3>02 / ข้อมูลที่อ่านได้</h3>
+ <p class="muted">ระบบพยายามแยกข้อมูลจากข้อความในภาพโดยอัตโนมัติ</p>
+
+ <div class="result">
+  <label>ยอดเงินที่ตรวจพบ</label>
+  <div class="amount" id="amount">ยังไม่พบ</div>
+  <div class="tag" id="amountNote">รอการสแกน</div>
+ </div>
+
+ <div class="result">
+  <label>ชื่อผู้โอนที่คาดว่าอ่านได้</label>
+  <div class="value" id="sender">ยังไม่พบ</div>
+ </div>
+
+ <div class="result">
+  <label>ชื่อผู้รับที่คาดว่าอ่านได้</label>
+  <div class="value" id="receiver">ยังไม่พบ</div>
+ </div>
+
+ <div class="result">
+  <label>เลขอ้างอิงที่อาจตรวจพบ</label>
+  <div class="value" id="reference">ยังไม่พบ</div>
+ </div>
+
+ <label for="raw">ข้อความทั้งหมดที่ OCR อ่านได้</label>
+ <textarea id="raw" placeholder="ข้อความที่อ่านได้จากภาพจะแสดงตรงนี้..." spellcheck="false"></textarea>
+
+ <div class="actions">
+  <button id="rescan" type="button">สแกนใหม่</button>
+  <button id="copy" type="button">คัดลอกข้อความ</button>
+ </div>
+</section>
+
+</div>
+
+<div class="note">
+ <strong>ข้อควรทราบ:</strong> OCR อาจอ่านชื่อภาษาไทยผิด อ่านตัวเลขผิด หรือเลือกยอดเงินรายการอื่นในสลิปได้ การอ่านข้อความสำเร็จไม่ได้ยืนยันว่าเป็นสลิปจริง ระบบนี้ยังไม่ได้เชื่อมต่อธนาคารและไม่สามารถยืนยันว่าเงินเข้าบัญชีแล้ว ต้องตรวจรายการเงินจริงในแอปธนาคารของผู้รับ
+</div>
+
+<footer>SlipCheck TH · Automatic OCR Scanner</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>
+(() => {
+ const $ = id => document.getElementById(id);
+
+ let selectedFile = null;
+ let imageUrl = null;
+ let worker = null;
+ let scanning = false;
+ let scanNumber = 0;
+
+ function setStatus(title, text) {
+  $('statusTitle').textContent = title;
+  $('statusText').textContent = text;
+ }
+
+ function resetResults() {
+  $('amount').textContent = 'ยังไม่พบ';
+  $('amountNote').textContent = 'รอการสแกน';
+  $('sender').textContent = 'ยังไม่พบ';
+  $('receiver').textContent = 'ยังไม่พบ';
+  $('reference').textContent = 'ยังไม่พบ';
+  $('raw').value = '';
+  $('progress').style.width = '0%';
+ }
+
+ function normalize(s) {
+  return String(s || '')
+   .replace(/\u200b/g, '')
+   .replace(/\s+/g, ' ')
+   .trim();
+ }
+
+ function cleanLine(s) {
+  return normalize(s)
+   .replace(/^[\s:：|•·\-]+/, '')
+   .replace(/[\s|•·]+$/, '')
+   .trim();
+ }
+
+ function findLabeledValue(lines, patterns) {
+  for (let i = 0; i < lines.length; i++) {
+   const line = lines[i];
+
+   for (const pattern of patterns) {
+    const match = line.match(pattern);
+
+    if (match && match[1]) {
+     let value = cleanLine(match[1]);
+
+     if (value && !/^(บาท|THB|โอนเงิน|สำเร็จ)$/i.test(value)) {
+      return value.slice(0, 100);
+     }
+    }
+   }
+  }
+
+  return '';
+ }
+
+ function parseSlip(text) {
+  const lines = text.split(/\r?\n/)
+   .map(cleanLine)
+   .filter(Boolean);
+
+  // พยายามหายอดเงินใกล้คำที่เกี่ยวข้องก่อน
+  const amountCandidates = [];
+  const amountPatterns = [
+   /(?:จำนวนเงิน|ยอดเงิน|จำนวน|ยอดโอน|โอนเงิน|amount|total)\s*[:：]?\s*(?:THB|฿|บาท)?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+   /(?:THB|฿)\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+   /([0-9][0-9,]*\.[0-9]{2})\s*(?:บาท|THB)/i
+  ];
+
+  for (const line of lines) {
+   for (const pattern of amountPatterns) {
+    const match = line.match(pattern);
+
+    if (match && match[1]) {
+     const number = Number(match[1].replace(/,/g, ''));
+
+     if (Number.isFinite(number) && number > 0) {
+      amountCandidates.push({
+       value: number,
+       line,
+       score: /จำนวนเงิน|ยอดเงิน|ยอดโอน|amount|total/i.test(line) ? 3 :
+              /บาท|THB|฿/i.test(line) ? 2 : 1
+      });
+     }
+    }
+   }
+  }
+
+  // หากไม่มีรูปแบบชัดเจน ค่อยหาตัวเลขทศนิยมในภาพ
+  if (!amountCandidates.length) {
+   for (const line of lines) {
+    const matches = line.match(/[0-9][0-9,]*\.[0-9]{2}/g) || [];
+
+    for (const value of matches) {
+     const number = Number(value.replace(/,/g, ''));
+
+     if (Number.isFinite(number) && number > 0) {
+      amountCandidates.push({value:number,line,score:0});
+     }
+    }
+   }
+  }
+
+  amountCandidates.sort((a,b) => b.score-a.score);
+
+  const sender = findLabeledValue(lines, [
+   /(?:ชื่อผู้โอน|ผู้โอน|จากบัญชี|ผู้ส่งเงิน|sender)\s*[:：\-]?\s*(.+)/i
+  ]);
+
+  const receiver = findLabeledValue(lines, [
+   /(?:ชื่อผู้รับ|ผู้รับเงิน|ผู้รับ|ไปยังบัญชี|เข้าบัญชี|receiver|recipient)\s*[:：\-]?\s*(.+)/i
+  ]);
+
+  const reference = findLabeledValue(lines, [
+   /(?:เลขที่รายการ|เลขอ้างอิง|รหัสอ้างอิง|หมายเลขอ้างอิง|reference\s*(?:no\.?|number)?|transaction\s*id)\s*[:：\-]?\s*([A-Z0-9\-]+)/i
+  ]);
+
+  return {
+   lines,
+   amountCandidates,
+   sender,
+   receiver,
+   reference
+  };
+ }
+
+ function showParsed(text) {
+  const data = parseSlip(text);
+
+  if (data.amountCandidates.length) {
+   const best = data.amountCandidates[0];
+   $('amount').textContent = best.value.toLocaleString('th-TH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+   }) + ' บาท';
+
+   $('amountNote').textContent =
+    data.amountCandidates.length > 1
+     ? 'พบตัวเลขที่อาจเป็นยอดเงินหลายรายการ โปรดตรวจเทียบกับภาพ'
+     : 'ยอดที่ระบบคาดว่าอ่านได้ โปรดตรวจสอบอีกครั้ง';
+  } else {
+   $('amount').textContent = 'ยังไม่พบยอดเงิน';
+   $('amountNote').textContent = 'OCR อาจอ่านตัวเลขไม่สำเร็จ';
+  }
+
+  $('sender').textContent = data.sender || 'ไม่สามารถระบุชื่อได้อัตโนมัติ';
+  $('receiver').textContent = data.receiver || 'ไม่สามารถระบุชื่อได้อัตโนมัติ';
+  $('reference').textContent = data.reference || 'ไม่พบหรืออ่านไม่ได้';
+
+  $('raw').value = text;
+ }
+
+ async function getWorker() {
+  if (worker) return worker;
+
+  if (!window.Tesseract) {
+   throw new Error('โหลด OCR ไม่สำเร็จ กรุณาตรวจอินเทอร์เน็ตและเปิดเว็บใหม่');
+  }
+
+  setStatus('กำลังเตรียมระบบ OCR', 'โหลดเครื่องมืออ่านข้อความครั้งแรกอาจใช้เวลาสักครู่');
+
+  worker = await Tesseract.createWorker('tha+eng', 1, {
+   logger: message => {
+    if (message.status) {
+     const percent = message.progress != null
+      ? ' ' + Math.round(message.progress * 100) + '%'
+      : '';
+
+     $('statusText').textContent = message.status + percent;
+    }
+   }
+  });
+
+  return worker;
+ }
+
+ async function scan() {
+  if (!selectedFile || scanning) return;
+
+  scanning = true;
+  const thisScan = ++scanNumber;
+
+  resetResults();
+  setStatus('กำลังสแกนภาพ...', 'กรุณารอสักครู่ อย่าปิดหน้าเว็บ');
+  $('progress').style.width = '5%';
+
+  try {
+   const ocr = await getWorker();
+
+   if (thisScan !== scanNumber) return;
+
+   setStatus('กำลังอ่านข้อความจากภาพ', 'กำลังวิเคราะห์ภาษาไทยและภาษาอังกฤษ');
+
+   const result = await ocr.recognize(selectedFile);
+
+   if (thisScan !== scanNumber) return;
+
+   const text = result.data.text || '';
+   showParsed(text);
+   $('progress').style.width = '100%';
+
+   if (text.trim().length > 3) {
+    setStatus('สแกนเสร็จแล้ว', 'ตรวจยอดเงินและชื่อกับภาพต้นฉบับก่อนนำไปใช้');
+   } else {
+    setStatus('อ่านข้อความไม่สำเร็จ', 'ลองใช้ภาพที่คมชัดขึ้นและเห็นสลิปเต็มใบ');
+   }
+  } catch (error) {
+   setStatus('สแกนไม่สำเร็จ', error.message || 'กรุณาลองใหม่');
+  } finally {
+   if (thisScan === scanNumber) scanning = false;
+  }
+ }
+
+ function setFile(file) {
+  if (!file) return;
+
+  if (!['image/png','image/jpeg','image/webp'].includes(file.type)) {
+   alert('กรุณาเลือกรูป PNG, JPG หรือ WEBP');
+   return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+   alert('รูปต้องมีขนาดไม่เกิน 10 MB');
+   return;
+  }
+
+  scanNumber++;
+  scanning = false;
+  selectedFile = file;
+
+  if (imageUrl) URL.revokeObjectURL(imageUrl);
+  imageUrl = URL.createObjectURL(file);
+
+  $('image').src = imageUrl;
+  $('preview').style.display = 'block';
+  $('dropzone').style.display = 'none';
+
+  resetResults();
+  scan(); // สแกนอัตโนมัติทันทีเมื่อเลือกรูป
+ }
+
+ function removeFile() {
+  scanNumber++;
+  scanning = false;
+  selectedFile = null;
+  $('file').value = '';
+
+  if (imageUrl) URL.revokeObjectURL(imageUrl);
+  imageUrl = null;
+
+  $('image').removeAttribute('src');
+  $('preview').style.display = 'none';
+  $('dropzone').style.display = 'flex';
+
+  resetResults();
+  setStatus('⌕ รอภาพสลิป', 'เลือกรูปเพื่อเริ่มต้น');
+ }
+
+ $('file').addEventListener('change', e => setFile(e.target.files[0]));
+ $('remove').addEventListener('click', removeFile);
+ $('rescan').addEventListener('click', scan);
+
+ $('dropzone').addEventListener('dragover', e => {
+  e.preventDefault();
+  $('dropzone').style.borderColor = 'var(--green)';
+ });
+
+ $('dropzone').addEventListener('dragleave', () => {
+  $('dropzone').style.borderColor = '';
+ });
+
+ $('dropzone').addEventListener('drop', e => {
+  e.preventDefault();
+  $('dropzone').style.borderColor = '';
+  setFile(e.dataTransfer.files[0]);
+ });
+
+ $('copy').addEventListener('click', async () => {
+  const text = $('raw').value;
+
+  if (!text) {
+   alert('ยังไม่มีข้อความให้คัดลอก');
+   return;
+  }
+
+  try {
+   await navigator.clipboard.writeText(text);
+   alert('คัดลอกข้อความแล้ว');
+  } catch {
+   $('raw').select();
+   document.execCommand('copy');
+   alert('คัดลอกข้อความแล้ว');
+  }
+ });
+})();
+</script>
+</body>
+</html>
